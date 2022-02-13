@@ -6,18 +6,43 @@ const JSONdb = require('simple-json-db');
 const db = new JSONdb('./database.json');
 const express = require('express');
 const app = express();
+const appReact = express();
 const https = require('https');
 const fetch = require('node-fetch');
 const cookieParser = require("cookie-parser");
 const sessions = require('express-session');
 const { createRequire } = require('module');
+const path = require("path");
 const ao = new https.Agent({
     pfx: require('fs').readFileSync('./FPTestcert3_20200618.pfx'),
     passphrase: 'qwerty123',
     ca: require('fs').readFileSync('./test.ca')
     //rejectUnauthorized: false // works if not presenting a CA cert but BAD! - we'd risk MITM
 }); 
+// if (!db.get("config").url.includes("localhost")) {
+appReact.get("/client", (req, res) => {
+ res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+appReact.use(function (req, res, next) {
 
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+  //  res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
+appReact.use(express.static("public"));
+// }
 const oneminute = 1000 * 10;
 app.use(function (req, res, next) {
 
@@ -84,8 +109,8 @@ app.get('/auth', async (req, res) => {
    res.setHeader('set-cookie', 'orderRefCreation='+Math.round((new Date()).getTime() / 1000)+';max-age=30000');
     //res.json('http://127.0.0.1:3002/collect?or=' + orderRef);
     db.set(orderRef,data)
-    let collectUrl  = 'http://192.168.100.38:3002/collect?or=' + orderRef+"&"+"time="+Math.round((new Date()).getTime() / 1000)
-    let qrCodeUrl = 'http://192.168.100.38:3002/qrcode?or=' + orderRef
+    let collectUrl  = db.get("config").url+':3002/collect?or=' + orderRef+"&"+"time="+Math.round((new Date()).getTime() / 1000)
+    let qrCodeUrl = db.get("config").url+':3002/qrcode?or=' + orderRef
     res.send({collectUrl:collectUrl, qrCodeUrl:qrCodeUrl, orderRef:orderRef,autoStartToken:data.autoStartToken});
     
 });
@@ -230,4 +255,6 @@ async function sleep(fn, ...args) {
 }
 
 const port = process.env.PORT || 3002;
+const portReact = process.env.PORT || 3003;
 app.listen(port, () => console.log(`App listening on port ${port}!`));
+appReact.listen(portReact, () => console.log(`React Client listening on port ${portReact}!`));

@@ -12,6 +12,8 @@ import { useSearchParams, setSearchParams } from "react-router-dom";
 
 // import LoginScreen from './LoginScreen'
 
+let url =  "http://161.97.97.205" //server e-menu
+//let url =  "http://localhost" // client dev
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,7 +22,7 @@ function App() {
     if (orderRef) {
       setTimeout(()=>{
       console.log("trying to get authorized session from server.....", orderRef);
-      axios.get("http://192.168.100.38:3002/getAuthStateForOrderRef?or="+orderRef)
+      axios.get(url+":3002/getAuthStateForOrderRef?or="+orderRef)
       .then((data) => {
        // console.log(data);
       if (Object.keys(data.data).length === 0) {
@@ -71,7 +73,7 @@ function App() {
         <br /><br />
         <QRCode value={state.qrcode} />
         <Button onClick = {()=> {
-            axios.get("http://192.168.100.38:3002/cancel?or="+state.orderRef)
+            axios.get(url+":3002/cancel?or="+state.orderRef)
             .then((data) => {
              // console.log(data);
             if (Object.keys(data.data).length === 0) {
@@ -120,10 +122,10 @@ function App() {
     // wsConnect()
     //  handleClickSendMessage()
     console.log("auth on this device flow started....")
-    axios.get("http://192.168.100.38:3002/auth")
+    axios.get(url+":3002/auth")
       .then((data) => {
         console.log(data);
-        window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect=http://192.168.100.38:3000?or="+data.data.orderRef)
+        window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect="+url+":3000?or="+data.data.orderRef)
         axios.get(data.data.collectUrl).then((d) => {
       
         })
@@ -139,12 +141,12 @@ function App() {
 
     console.log("auth on different device with qr code flow started...")
 
-    axios.get("http://192.168.100.38:3002/auth")
+    axios.get(url+":3002/auth")
       .then((data) => {
         console.log(data)
 
         setState({ ...state,stage:Status.QRFLOWACTIVE, orderRef: data.data.orderRef })
-
+console.log("collect url....",data.data.collectUrl)
         axios.get(data.data.collectUrl).then((d) => {
           console.log("after collect:", d)
           if (d.data.status == 'complete') {
@@ -176,7 +178,7 @@ function App() {
 
   useInterval(() => {
     if (state.stage == Status.QRFLOWACTIVE) {
-      axios.get("http://192.168.100.38:3002/qrcode?or=" + state.orderRef)
+      axios.get(url+":3002/qrcode?or=" + state.orderRef)
         .then((data) => {
 
           console.log(data)
