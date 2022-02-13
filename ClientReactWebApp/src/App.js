@@ -125,7 +125,7 @@ function App() {
     axios.get(url+":3002/auth")
       .then((data) => {
         console.log(data);
-        window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect="+url+":3000?or="+data.data.orderRef)
+        window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect="+url+":3003?or="+data.data.orderRef)
         axios.get(data.data.collectUrl).then((d) => {
       
         })
