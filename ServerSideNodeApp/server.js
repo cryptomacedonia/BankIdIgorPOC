@@ -20,9 +20,9 @@ const ao = new https.Agent({
     //rejectUnauthorized: false // works if not presenting a CA cert but BAD! - we'd risk MITM
 }); 
 // if (!db.get("config").url.includes("localhost")) {
-appReact.get("/client", (req, res) => {
- res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// appReact.get("/client", (req, res) => {
+//  res.sendFile(path.join(__dirname, "public", "index.html"));
+// });
 appReact.use(function (req, res, next) {
 
     // Website you wish to allow to connect
