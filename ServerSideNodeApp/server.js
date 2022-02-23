@@ -71,21 +71,29 @@ app.use(sessions({
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get('/auth', async (req, res) => {
 
-   
-    let session=req.session;
-    if(session){
-       // res.json('auth continuing...')
-      //  res.send("Welcome User <a href=\'/logout'>click to logout</a>");
-    }else {
-     //   res.json('new auth session')
- //   res.send("no session...")
-}
 
-    
+
+
+
+app.get('/makeOrder', async (req, res) => {
+
+ 
     var ip = req.headers['x-real-ip'] || req.socket.remoteAddress;
+
+
+
+
+
+
     ip = "192.168.100.231"
+
+
+
+
+
+
+
     console.log(req.connection.remoteAddress);
     var bodyObj = {
           "endUserIp": ip // TODO: must be client ip as seen been by RP
@@ -102,15 +110,29 @@ app.get('/auth', async (req, res) => {
         agent: ao
     });
     data = await data.json();
+/*
+    "orderRef": "7694a062-514e-45b7-abc7-a56665165c07",
+    "autoStartToken": "c2960822-6beb-4e30-b8e1-0b24ff45deb0",
+    "qrStartToken": "438e08b5-fdec-48e8-af75-36c4c2adff30",
+    "qrStartSecret": "f5f27fe2-fb39-4275-9eb0-187d9891e5ab"
+    */
+
+
     console.log(data);
     let orderRef;
     if (data.orderRef) orderRef = data.orderRef; 
-   res.setHeader('set-cookie', 'orderRef='+orderRef+';max-age=30000');
-   res.setHeader('set-cookie', 'orderRefCreation='+Math.round((new Date()).getTime() / 1000)+';max-age=30000');
+//    res.setHeader('set-cookie', 'orderRef='+orderRef+';max-age=30000');
+//    res.setHeader('set-cookie', 'orderRefCreation='+Math.round((new Date()).getTime() / 1000)+';max-age=30000');
     //res.json('http://127.0.0.1:3002/collect?or=' + orderRef);
     db.set(orderRef,data)
+// snimanje vo baza za podocna da se najde po order reference !!!!!
+
+
+
     let collectUrl  = db.get("config").url+':3002/collect?or=' + orderRef+"&"+"time="+Math.round((new Date()).getTime() / 1000)
     let qrCodeUrl = db.get("config").url+':3002/qrcode?or=' + orderRef
+
+
     res.send({collectUrl:collectUrl, qrCodeUrl:qrCodeUrl, orderRef:orderRef,autoStartToken:data.autoStartToken});
     
 });

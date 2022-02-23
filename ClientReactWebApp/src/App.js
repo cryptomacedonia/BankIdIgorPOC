@@ -16,6 +16,30 @@ let url =  "http://161.97.97.205" //server e-menu
 //let url =  "http://localhost" // client dev
 
 function App() {
+
+
+
+  const [width, setWidth] = useState(window.innerWidth);
+
+function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+}
+useEffect(() => {
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+        window.removeEventListener('resize', handleWindowSizeChange);
+    }
+}, []);
+
+const isMobile = width <= 768;
+
+
+
+
+
+
+
+
   const [searchParams, setSearchParams] = useSearchParams();
   const orderRef =  searchParams.get("or")
   useEffect(() => {
@@ -121,16 +145,46 @@ function App() {
   const authOnThisDevice = () => {
     // wsConnect()
     //  handleClickSendMessage()
-    console.log("auth on this device flow started....")
-    axios.get(url+":3002/auth")
-      .then((data) => {
-        console.log(data);
-        window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect="+url+":3003?or="+data.data.orderRef)
-        axios.get(data.data.collectUrl).then((d) => {
-      
-        })
 
-      });
+    switch (isMobile) {
+      case true:
+        console.log("auth on this mobile device flow started....")
+        axios.get(url+":3002/makeOrder")
+          .then((data) => {
+            console.log(data);
+            window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect="+url+":3003?or="+data.data.orderRef)
+            axios.get(data.data.collectUrl).then((d) => {
+          
+            })
+    
+          });
+        break
+      case false:
+        console.log("auth on this desktop pc / apple  flow started....")
+        axios.get(url+":3002/makeOrder")
+          .then((data) => {
+            console.log(data);
+            //bankid:///?autostarttoken=[TOKEN]&redirect=[RETURNURL]
+            var u = "bankid:///?autostarttoken=" + data.data.autoStartToken + "&redirect="+encodeURIComponent(url+":3003?or="+data.data.orderRef)
+            window.location.assign(u)
+            axios.get(data.data.collectUrl).then((d) => {
+              if (d.data.status == 'complete') {
+
+                setState({ ...state, stage:Status.COMPLETED,  loggedInData: d.data })
+    
+              } else {
+    
+                setState({ ...state, stage:Status.FAILED, status: d.data.status })
+              }
+            
+            })
+    
+          });
+        break
+    }
+
+
+ 
 
 
   }
@@ -141,13 +195,30 @@ function App() {
 
     console.log("auth on different device with qr code flow started...")
 
-    axios.get(url+":3002/auth")
+   
+   
+   
+   
+   
+    axios.get(url+":3002/makeOrder") // tuka e prviot povik AUTH GET REQUEST EXAMPLE  http://161.97.97.205:3002/auth​
+    
+    
       .then((data) => {
         console.log(data)
 
         setState({ ...state,stage:Status.QRFLOWACTIVE, orderRef: data.data.orderRef })
+
 console.log("collect url....",data.data.collectUrl)
-        axios.get(data.data.collectUrl).then((d) => {
+
+
+
+
+        axios.get(data.data.collectUrl).then((d) => { 
+          
+          
+          
+          
+          //tuka e vtoriot povik so koristenje na data od prviot , znaci se povikuva posle  http://161.97.97.205:3002/collect?or=861d1f39-7cda-4356-95d6-15d16e839f17&time=1644913541
           console.log("after collect:", d)
           if (d.data.status == 'complete') {
 
