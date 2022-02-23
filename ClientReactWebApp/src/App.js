@@ -12,8 +12,8 @@ import { useSearchParams, setSearchParams } from "react-router-dom";
 
 // import LoginScreen from './LoginScreen'
 
-let url =  "http://161.97.97.205"    //server e-menu
-//let url =  "http://localhost" // client dev
+//let url =  "http://161.97.97.205"    //server e-menu
+let url =  "http://localhost" // client dev
 
 function App() {
 

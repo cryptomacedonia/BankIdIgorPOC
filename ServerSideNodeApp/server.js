@@ -41,7 +41,7 @@ appReact.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
-appReact.use(express.static("public"));
+appReact.use(express.static("../ClientReactWebApp/build/"));
 // }
 const oneminute = 1000 * 10;
 app.use(function (req, res, next) {
