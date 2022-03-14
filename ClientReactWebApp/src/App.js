@@ -12,7 +12,7 @@ import { useSearchParams, setSearchParams } from "react-router-dom";
 
 // import LoginScreen from './LoginScreen'
 
-let url =  "http://161.97.97.205"    //server e-menu
+let url =  "https://application-smash-poc-heroku.herokuapp.com"    //server e-menu
 //let url =  "http://localhost" // client dev
 
 function App() {
@@ -46,7 +46,7 @@ const isMobile = width <= 768;
     if (orderRef) {
       setTimeout(()=>{
       console.log("trying to get authorized session from server.....", orderRef);
-      axios.get(url+":3002/getAuthStateForOrderRef?or="+orderRef)
+      axios.get(url+"/getAuthStateForOrderRef?or="+orderRef)
       .then((data) => {
        // console.log(data);
       if (Object.keys(data.data).length === 0) {
@@ -97,7 +97,7 @@ const isMobile = width <= 768;
         <br /><br />
         <QRCode value={state.qrcode} />
         <Button onClick = {()=> {
-            axios.get(url+":3002/cancel?or="+state.orderRef)
+            axios.get(url+"/cancel?or="+state.orderRef)
             .then((data) => {
              // console.log(data);
             if (Object.keys(data.data).length === 0) {
@@ -149,7 +149,7 @@ const isMobile = width <= 768;
     switch (isMobile) {
       case true:
         console.log("auth on this mobile device flow started....")
-        axios.get(url+":3002/makeOrder")
+        axios.get(url+"/makeOrder")
           .then((data) => {
             console.log(data);
             window.location.assign("https://app.bankid.com/?autostarttoken=" + data.data.autoStartToken + "&redirect="+url+":3003?or="+data.data.orderRef)
@@ -161,7 +161,7 @@ const isMobile = width <= 768;
         break
       case false:
         console.log("auth on this desktop pc / apple  flow started....")
-        axios.get(url+":3002/makeOrder")
+        axios.get(url+"/makeOrder")
           .then((data) => {
             console.log(data);
             //bankid:///?autostarttoken=[TOKEN]&redirect=[RETURNURL]
@@ -200,7 +200,7 @@ const isMobile = width <= 768;
    
    
    
-    axios.get(url+":3002/makeOrder") // tuka e prviot povik AUTH GET REQUEST EXAMPLE  http://161.97.97.205:3002/auth​
+    axios.get(url+"/makeOrder") // tuka e prviot povik AUTH GET REQUEST EXAMPLE  http://161.97.97.205/auth​
     
     
       .then((data) => {
@@ -218,7 +218,7 @@ console.log("collect url....",data.data.collectUrl)
           
           
           
-          //tuka e vtoriot povik so koristenje na data od prviot , znaci se povikuva posle  http://161.97.97.205:3002/collect?or=861d1f39-7cda-4356-95d6-15d16e839f17&time=1644913541
+          //tuka e vtoriot povik so koristenje na data od prviot , znaci se povikuva posle  http://161.97.97.205/collect?or=861d1f39-7cda-4356-95d6-15d16e839f17&time=1644913541
           console.log("after collect:", d)
           if (d.data.status == 'complete') {
 
@@ -249,7 +249,7 @@ console.log("collect url....",data.data.collectUrl)
 
   useInterval(() => {
     if (state.stage == Status.QRFLOWACTIVE) {
-      axios.get(url+":3002/qrcode?or=" + state.orderRef)
+      axios.get(url+"/qrcode?or=" + state.orderRef)
         .then((data) => {
 
           console.log(data)
